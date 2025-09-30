@@ -1,0 +1,35 @@
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Basic configuration for Mailcrab
+# ----------------------------------------------------------------
+# Example run:
+# $ docker compose -f docker-compose.simple.yml up -d
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+name: mailcrab
+
+services:
+  mailcrab:
+    image: marlonb/mailcrab:latest
+    container_name: mailcrab
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 512M
+    hostname: mailcrab
+    networks:
+      - public
+    ports:
+      - "1025:1025/tcp" # SMTP
+      - "1080:1080/tcp" # HTTP
+    volumes:
+      - app:/app:cached
+
+volumes:
+  app:
+
+networks:
+  public:
+    driver: bridge
+    internal: false

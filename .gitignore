@@ -1,0 +1,11 @@
+# IDE
+/.idea
+/.vscode
+
+# Docker & Podman
+/docker-compose.yml
+/podman-compose.yml
+
+# Misc
+.DS_Store
+Thumbs.db

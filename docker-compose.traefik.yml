@@ -1,0 +1,45 @@
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Basic configuration for Mailcrab + Traefik
+# ----------------------------------------------------------------
+# Example run:
+# $ docker network create -d bridge traefik_public
+# $ docker compose -f docker-compose.traefik.yml up -d
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+name: mailcrab
+
+services:
+  mailcrab:
+    image: marlonb/mailcrab:latest
+    container_name: mailcrab
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 512M
+    hostname: mailcrab
+    networks:
+      - public
+    volumes:
+      - app:/app:cached
+    labels:
+      - "traefik.enable=true"
+      # HTTP (permanent redirect)
+      - "traefik.http.routers.mailcrab-http.rule=Host(`${MAILCRAB_HOST:-mailcrab.traefik.docker}`)"
+      - "traefik.http.routers.mailcrab-http.entryPoints=http"
+      - "traefik.http.routers.mailcrab-http.middlewares=redirect-to-https@file"
+      # HTTPS
+      - "traefik.http.routers.mailcrab-https.rule=Host(`${MAILCRAB_HOST:-mailcrab.traefik.docker}`)"
+      - "traefik.http.routers.mailcrab-https.entryPoints=https"
+      - "traefik.http.routers.mailcrab-https.tls=true"
+      - "traefik.http.routers.mailcrab-https.service=mailcrab-https"
+      - "traefik.http.services.mailcrab-https.loadBalancer.server.port=1080"
+
+volumes:
+  app:
+
+networks:
+  public:
+    external: true
+    name: traefik_public
